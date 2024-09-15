@@ -5,6 +5,7 @@ const { Rabbitmq } = require("./Rabbitmq");
 const { queues } = require("./constant");
 const cors = require("cors");
 const Stream = require("node-rtsp-stream");
+const { default: axios } = require("axios");
 
 const app = express();
 app.use(cors());
@@ -20,7 +21,7 @@ app.get("/stream", (req, res) => {
   const stream1 = () => {
     stream = new Stream({
       name: "Bunny",
-      streamUrl: "rtsp://127.0.0.1:8554/ds-test",
+      streamUrl: "rtsp://admin:zxcvbnm0.@190.92.4.249:554/cam/realmonitor?channel=1&subtype=0",
       wsPort: 6789,
       /*  ffmpegOptions: {
       "-f": "mpegts",
@@ -53,7 +54,7 @@ app.get("/stream/:id", (req, res) => {
   const stream1 = () => {
     singleStream = new Stream({
       name: "Single Camera",
-      streamUrl: cameraData,
+      streamUrl: "rtsp://admin:zxcvbnm0.@190.92.4.249:554/cam/realmonitor?channel=1&subtype=0",
       wsPort: 6790,
       /*  ffmpegOptions: {
           "-f": "mpegts",
@@ -79,10 +80,8 @@ app.get("/stream/:id", (req, res) => {
 
 const port = 8000;
 
-// Serve static files from the 'public' directory
 app.use(express.static("public"));
 
-// Handle a Socket.IO connection
 io.on("connection", (socket) => {
   console.log("New client connected", currentQueueData[queues[0]]);
 
@@ -93,18 +92,26 @@ io.on("connection", (socket) => {
 
   Rabbitmq(currentQueueData, io);
 
-  // Handle a custom event
-  socket.on("clientMessage", (data) => {
-    console.log("Received message:", data);
-    // Broadcast the data to all connected clients
-    io.emit("serverMessage", data);
-  });
-
   socket.on("disconnect", () => {
     console.log("Client disconnected");
   });
 });
 
+const fetchCameraConfig = async () => {
+  try {
+    const response = await axios.get("https://723cd6fa68c1a0c386448fccd88c6c2b.serveo.net/get_camera_config");
+    const cameraConfig = response.data;
+
+    // Set the currentQueueData for queues[0] with the API response
+    currentQueueData[queues[0]] = cameraConfig;
+
+    console.log("Camera configuration updated:", currentQueueData[queues[0]]);
+  } catch (error) {
+    console.error("Error fetching camera configuration:", error.message);
+  }
+};
+
 server.listen(port, () => {
+  fetchCameraConfig();
   console.log(`Server running at http://localhost:${port}`);
 });

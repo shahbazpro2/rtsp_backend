@@ -71,7 +71,7 @@ app.get("/stream/:id", (req, res) => {
         }, */
     });
   };
-  if (stream) {
+  if (singleStream) {
     singleStream.stop();
   }
   stream1();

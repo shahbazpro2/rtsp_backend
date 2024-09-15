@@ -47,14 +47,14 @@ app.get("/stream", (req, res) => {
 
 app.get("/stream/:id", (req, res) => {
   const parms = req.params.id;
-  const cameraData = currentQueueData[queues[0]]?.[parms];
+  const cameraData = currentQueueData[queues[0]]?.[parms] + ":554/Streaming/channels/102";
   if (!cameraData) {
-    res.send({ message: "Camera not found" });
+    return res.send({ message: "Camera not found" });
   }
   const stream1 = () => {
     singleStream = new Stream({
       name: "Single Camera",
-      streamUrl: "rtsp://admin:zxcvbnm0.@190.92.4.249:554/cam/realmonitor?channel=1&subtype=0",
+      streamUrl: cameraData,
       wsPort: 6790,
       /*  ffmpegOptions: {
           "-f": "mpegts",

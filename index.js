@@ -99,7 +99,7 @@ io.on("connection", (socket) => {
 
 const fetchCameraConfig = async () => {
   try {
-    const response = await axios.get("https://723cd6fa68c1a0c386448fccd88c6c2b.serveo.net/get_camera_config");
+    const response = await axios.get("http://127.0.0.1:5000/get_camera_config");
     const cameraConfig = response.data;
 
     // Set the currentQueueData for queues[0] with the API response
